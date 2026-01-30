@@ -2,7 +2,7 @@
 
 **AI Powered Special Education Progress Tracker**
 
-An iOS application that reimagines special education documentation by transforming natural speech into structured student progress reports. Built with Swift, SwiftUI, and powered by NVIDIA LLaMA 3.1-405B.
+An iOS application that reimagines special education documentation by transforming natural speech into structured student progress reports. Built with Swift, SwiftUI, and powered by OpenAI GPT-4o mini.
 
 ---
 
@@ -42,7 +42,7 @@ The result is a seamless ecosystem where teachers can simply speak freely about 
 Powered by Apple Speech Recognition framework, teachers can speak naturally about their observations. The app listens in real-time and converts speech to text, eliminating the need for manual typing.
 
 ### AI-Generated Summaries
-Leveraging NVIDIA LLaMA 3.1-405B model, Gako automatically generates concise, professional summaries for each student based on their daily activities and notes, focusing on development milestones and areas needing attention.
+Leveraging OpenAI GPT-4o mini model, Gako automatically generates concise, professional summaries for each student based on their daily activities and notes, focusing on development milestones and areas needing attention.
 
 ### Student Progress Tracking
 Comprehensive tracking of each student's activities with status indicators (independent/assisted), allowing teachers to monitor development patterns over time.
@@ -73,7 +73,7 @@ Guided onboarding flow to help teachers set up their classroom and understand th
 
 | Service | Purpose |
 |---------|---------|
-| NVIDIA LLaMA 3.1-405B | AI-powered summary generation via NIM API |
+| [OpenAI Swift](https://github.com/MacPaw/OpenAI) | GPT-4o mini integration for AI summary generation |
 
 ### Apple Frameworks
 
@@ -139,7 +139,7 @@ Gako implements **Clean Architecture** combined with **MVVM (Model-View-ViewMode
 ┌────────────────────────────────┼────────────────────────────────┐
 │                       EXTERNAL SERVICES                          │
 │  ┌──────────────────────┐  ┌────────────────────────────────┐   │
-│  │  Apple Speech API    │  │     NVIDIA LLaMA 3.1-405B      │   │
+│  │  Apple Speech API    │  │       OpenAI GPT-4o mini       │   │
 │  │  (Voice Recognition) │  │     (AI Summary Generation)    │   │
 │  └──────────────────────┘  └────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -235,17 +235,15 @@ Gako/
 
 ## Implementation Details
 
-### NVIDIA LLaMA 3.1-405B Integration
+### OpenAI GPT-4o mini Integration
 
-The AI summary generation leverages NVIDIA's LLaMA 3.1-405B model through the NIM API:
+The AI summary generation leverages OpenAI's GPT-4o mini model:
 
 ```swift
-import Foundation
-import SwiftData
+import OpenAI
 
-class SummaryLlamaService {
-    private let apiKey: String
-    private let baseURL = "https://integrate.api.nvidia.com/v1/chat/completions"
+class SummaryService {
+    private let openAI: OpenAI
     private let summaryUseCase: SummaryUseCase
     
     func generateAndSaveSummaries(for students: [Student], on date: Date) async throws {
@@ -263,13 +261,10 @@ class SummaryLlamaService {
     }
     
     private func generateIndividualSummary(for student: Student, on date: Date) async throws -> String {
-        let requestBody: [String: Any] = [
-            "model": "meta/llama-3.1-405b-instruct",
-            "messages": [["role": "user", "content": prompt]],
-            "temperature": 0.5,
-            "max_tokens": 1024,
-            "top_p": 1
-        ]
+        let query = ChatQuery(
+            messages: [.init(role: .user, content: prompt)!],
+            model: .gpt4_o_mini
+        )
         // API call implementation...
     }
 }
@@ -333,7 +328,7 @@ class SpeechRecognizer: ObservableObject {
 - macOS Sonoma 14.0+
 - Xcode 15.4+
 - iOS 17.0+ device or simulator
-- NVIDIA NIM API Key
+- OpenAI API Key
 - Mixpanel Token (optional, for analytics)
 
 ### Installation
@@ -361,11 +356,8 @@ class SpeechRecognizer: ObservableObject {
    // Mixpanel
    Mixpanel.initialize(token: "YOUR_MIXPANEL_TOKEN", trackAutomaticEvents: true)
    
-   // NVIDIA LLaMA API
-   let summaryLlamaService = SummaryLlamaService(
-       apiKey: "YOUR_NVIDIA_API_KEY",
-       summaryUseCase: summaryUseCase
-   )
+   // OpenAI API
+   let openAI = OpenAI(apiToken: "YOUR_OPENAI_API_KEY")
    ```
 
 5. **Build and Run**
@@ -415,6 +407,6 @@ This project is for portfolio and educational purposes.
 
 ## Acknowledgments
 
-- [NVIDIA](https://www.nvidia.com/) — LLaMA 3.1-405B NIM API
+- [OpenAI](https://openai.com/) — GPT-4o mini API
 - [Mixpanel](https://mixpanel.com/) — Analytics platform
 - Apple Developer Documentation — SwiftUI, SwiftData, Speech Framework
